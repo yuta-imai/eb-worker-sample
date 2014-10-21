@@ -35,7 +35,8 @@ SQS <-(polling)- aws-sqsd -> nginx(port:80) -> node.js(port:8081)
 
 ### body
 
-Message itself.
+Message itself. If you pass '{"url":"some_url"}', it will come up as string,
+so you can use it by parsing as JSON to map.
 
 ## How to use
 
