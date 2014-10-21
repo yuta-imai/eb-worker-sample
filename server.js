@@ -8,10 +8,12 @@ var logger = new winston.Logger({
 });
 
 http.createServer(function(req,res){
+
     logger.info(JSON.stringify(req.headers));
     req.on('data',function(data){
-        logger.info(data.toString());
+        logger.info(data);
+        res.writeHead(200);
+        res.end();
     });
-    res.writeHead(200);
-    res.end();
+
 }).listen(process.env.PORT || 3000);
