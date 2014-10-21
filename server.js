@@ -6,4 +6,4 @@ http.createServer(function(req,res){
     res.writeHead(200, {"Content-Type":"application/json"});
     res.write(response);
     res.end();
-}).listen(process.env.PORT || 80);
+}).listen(process.env.PORT || 3000);
