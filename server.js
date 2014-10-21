@@ -12,6 +12,6 @@ http.createServer(function(req,res){
     req.on('data',function(data){
         logger.info(data.toString());
     });
-    res.writeHead(204);
+    res.writeHead(200);
     res.end();
 }).listen(process.env.PORT || 3000);
