@@ -18,42 +18,48 @@ var logger = new winston.Logger({
 
 http.createServer(function(req,res){
 
-    logger.info(JSON.stringify(req.headers));
     req.on('data',function(data){
-
         try{
             var hash = JSON.parse(data.toString());
         }catch(e){
-            returnResponse(res,400);
+            returnResponse(res,400,logger,'Invalid json: ' + data.toString());
         }
 
         if(!hash.url || !validateUrl(hash.url)){
-            returnResponse(res,400);
+            returnResponse(res,400,logger,'Invalid url: ' + JSON.parse(hash));
         }
 
         fetchImage(hash.url,function(error,fetchResult){
 
-            if(error) returnResponse(res,400);
+            if(error){
+                returnResponse(res,400,logger,'Could not fetch image');
+            }
 
             uploadImageToS3(
                 bucketName,
                 fetchResult.filename,
                 fetchResult.body,
-                function(error,uploadResult){
-                    if(error) returnResponse(res,400);
-                    returnResponse(res,200) ;                   
-                })
-            });
+                function(error,filename){
+                    if(error) {
+                        returnResponse(res,400,logger, 'Could not upload image to S3: ' + JSON.stringify(error));
+                    }
+                    returnResponse(res,200,logger,'uploaded: ' + filename) ;
+                }
+            );
         });
-
-        res.writeHead(200);
-        res.end();
     });
-
 }).listen(process.env.PORT || 3000);
 
-function returnResponse(httpResponse, status){
+function returnResponse(httpResponse, status, logger, message){
+
+    if(status === 200){
+        logger.info(message);
+    }else{
+        logger.error(message);
+    }
+
     httpResponse.writeHead(status);
+    httpResponse.write(message);
     httpResponse.end();
 }
 
@@ -87,7 +93,7 @@ function fetchImage(url,callback){
     });
 }
 
-function uploadImageToS3(bucketname,filename,body,callback){
+function uploadImageToS3(bucketName,filename,body,callback){
     var s3 = new aws.S3({region:awsRegion});
     var params = {
         ACL: 'public-read',
@@ -98,8 +104,8 @@ function uploadImageToS3(bucketname,filename,body,callback){
         Key: filename
     };
     s3.putObject(params,function(error,res){
-        if(error) callback(error,null);
-        else callback(null,'done');
+        if(error)callback(error,null);
+        else callback(null,filename);
     });
 }
 

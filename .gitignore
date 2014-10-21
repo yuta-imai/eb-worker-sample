@@ -1,3 +1,5 @@
 .elasticbeanstalk/
 node_modules/
 *.log
+.idea/
+*.iml
