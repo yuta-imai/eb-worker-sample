@@ -11,7 +11,8 @@ http.createServer(function(req,res){
 
     logger.info(JSON.stringify(req.headers));
     req.on('data',function(data){
-        logger.info(data);
+        var hash = JSON.parse(data.toString());
+        logger.info(JSON.stringify(hash));
         res.writeHead(200);
         res.end();
     });
